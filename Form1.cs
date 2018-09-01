@@ -47,17 +47,13 @@ namespace AudioEndpointManager
         private void Form1_Load(object sender, EventArgs e)
         {
             var listDeviceClasses = new List<DeviceClassWrapper>();
-            listDeviceClasses.Add(new DeviceClassWrapper(CfgMgr32.KSCATEGORY_AUDIO, "KSCATEGORY_AUDIO"));
             listDeviceClasses.Add(new DeviceClassWrapper(CfgMgr32.KSCATEGORY_CAPTURE, "KSCATEGORY_CAPTURE"));
             listDeviceClasses.Add(new DeviceClassWrapper(CfgMgr32.KSCATEGORY_RENDER, "KSCATEGORY_RENDER"));
             comboBoxDeviceClass.BeginUpdate();
             comboBoxDeviceClass.Items.AddRange(listDeviceClasses.ToArray());
             comboBoxDeviceClass.SelectedIndex = 0;
             comboBoxDeviceClass.EndUpdate();
-        }
 
-        private void comboBoxDeviceClass_SelectedValueChanged(object sender, EventArgs e)
-        {
             buttonRefresh.PerformClick();
         }
 
@@ -80,8 +76,7 @@ namespace AudioEndpointManager
 
         private void buttonRefresh_Click(object sender, EventArgs e)
         {
-            var deviceClass = comboBoxDeviceClass.SelectedItem as DeviceClassWrapper;
-            var devicesInterfaces = CfgMgr32.GetDeviceInterfaces(deviceClass.deviceClass);
+            var devicesInterfaces = CfgMgr32.GetDeviceInterfaces(CfgMgr32.KSCATEGORY_AUDIO);
 
             textBox1.Clear();
             PrintDevices("devicesInterfaces", devicesInterfaces);
@@ -120,9 +115,13 @@ namespace AudioEndpointManager
 
         private void button2_Click(object sender, EventArgs e)
         {
-            var selectedItem = comboBox1.SelectedItem as DeviceInterfaceWrapper;
-            var enabled = CfgMgr32.GetDeviceInterfacePropertyEnabled(selectedItem.id);
-            CfgMgr32.SetDeviceInterfacePropertyEnabled(selectedItem.id, !enabled);
+            var selectedDevice = comboBox1.SelectedItem as DeviceInterfaceWrapper;
+            var deviceId = selectedDevice.id;
+
+            var aliasClass = comboBoxDeviceClass.SelectedItem as DeviceClassWrapper;
+            var alias = CfgMgr32.GetDeviceInterfaceAlias(deviceId, aliasClass.deviceClass);
+            var enabled = CfgMgr32.GetDeviceInterfacePropertyEnabled(alias);
+            CfgMgr32.SetDeviceInterfacePropertyEnabled(alias, !enabled);
         }
     }
 }

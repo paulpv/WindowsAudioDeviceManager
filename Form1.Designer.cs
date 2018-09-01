@@ -41,7 +41,7 @@
             | System.Windows.Forms.AnchorStyles.Right)));
             this.comboBox1.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.comboBox1.FormattingEnabled = true;
-            this.comboBox1.Location = new System.Drawing.Point(12, 39);
+            this.comboBox1.Location = new System.Drawing.Point(12, 12);
             this.comboBox1.Name = "comboBox1";
             this.comboBox1.Size = new System.Drawing.Size(279, 21);
             this.comboBox1.Sorted = true;
@@ -50,7 +50,7 @@
             // buttonRefresh
             // 
             this.buttonRefresh.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.buttonRefresh.Location = new System.Drawing.Point(297, 38);
+            this.buttonRefresh.Location = new System.Drawing.Point(297, 12);
             this.buttonRefresh.Name = "buttonRefresh";
             this.buttonRefresh.Size = new System.Drawing.Size(75, 23);
             this.buttonRefresh.TabIndex = 1;
@@ -63,17 +63,17 @@
             this.textBox1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.textBox1.Location = new System.Drawing.Point(12, 96);
+            this.textBox1.Location = new System.Drawing.Point(12, 97);
             this.textBox1.Multiline = true;
             this.textBox1.Name = "textBox1";
-            this.textBox1.Size = new System.Drawing.Size(360, 138);
+            this.textBox1.Size = new System.Drawing.Size(360, 137);
             this.textBox1.TabIndex = 2;
             // 
             // button2
             // 
             this.button2.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.button2.Location = new System.Drawing.Point(12, 67);
+            this.button2.Location = new System.Drawing.Point(12, 68);
             this.button2.Name = "button2";
             this.button2.Size = new System.Drawing.Size(360, 23);
             this.button2.TabIndex = 3;
@@ -87,12 +87,11 @@
             | System.Windows.Forms.AnchorStyles.Right)));
             this.comboBoxDeviceClass.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.comboBoxDeviceClass.FormattingEnabled = true;
-            this.comboBoxDeviceClass.Location = new System.Drawing.Point(12, 12);
+            this.comboBoxDeviceClass.Location = new System.Drawing.Point(12, 41);
             this.comboBoxDeviceClass.Name = "comboBoxDeviceClass";
             this.comboBoxDeviceClass.Size = new System.Drawing.Size(360, 21);
             this.comboBoxDeviceClass.Sorted = true;
             this.comboBoxDeviceClass.TabIndex = 4;
-            this.comboBoxDeviceClass.SelectedValueChanged += new System.EventHandler(this.comboBoxDeviceClass_SelectedValueChanged);
             // 
             // Form1
             // 

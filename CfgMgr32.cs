@@ -101,11 +101,11 @@ namespace AudioEndpointManager
 
             uint size;
             var result = CM_Get_Device_Interface_List_Size(out size, ref interfaceClassGuid, null, flags);
-            if (result != CR_SUCCESS) throw new Exception("Unable to retrieve device interface list size: " + result);
+            if (result != CR_SUCCESS) throw new Exception(String.Format("Unable to retrieve device interface list size, result=0x{0:X8}", result));
 
             var buffer = new char[(int)size];
             result = CM_Get_Device_Interface_List(ref interfaceClassGuid, null, buffer, size, flags);
-            if (result != CR_SUCCESS) throw new Exception("Unable to retrieve device interface list: " + result);
+            if (result != CR_SUCCESS) throw new Exception(String.Format("Unable to retrieve device interface list, result=0x{0:X8}", result));
 
             return new string(buffer).Split(new char[] { '\0' }, StringSplitOptions.RemoveEmptyEntries);
         }
@@ -148,16 +148,12 @@ namespace AudioEndpointManager
             byte[] PropertyBuffer = null;
             uint PropertyBufferSize = 0;
             var result = CM_Get_Device_Interface_Property(pszDeviceInterface, ref PropertyKey, ref PropertyType, PropertyBuffer, ref PropertyBufferSize, 0);
-            if (result == CR_NO_SUCH_VALUE)
-            {
-                return null;
-            }
-
-            if (result != CR_BUFFER_SMALL) throw new Exception("Unable to retrieve device property size");
+            if (result == CR_NO_SUCH_VALUE) return null;
+            if (result != CR_BUFFER_SMALL) throw new Exception(String.Format("Unable to retrieve device property length, result=0x{0:X8}", result));
 
             PropertyBuffer = new byte[PropertyBufferSize];
             result = CM_Get_Device_Interface_Property(pszDeviceInterface, ref PropertyKey, ref PropertyType, PropertyBuffer, ref PropertyBufferSize, 0);
-            if (result != CR_SUCCESS) throw new Exception("Unable to retrieve device property");
+            if (result != CR_SUCCESS) throw new Exception(String.Format("Unable to retrieve device property, result=0x{0:X8}", result));
 
             return PropertyBuffer;
         }
@@ -175,6 +171,28 @@ namespace AudioEndpointManager
             var result = CM_Set_Device_Interface_Property(pszDeviceInterface, ref PropertyKey, PropertyType, PropertyBuffer, PropertyBufferSize, 0);
             if (result != CR_SUCCESS) throw new Exception(String.Format("Unable to set device property, result=0x{0:X8}", result));
         }
+
+        [DllImport(CFGMGR32_DLL, CharSet = CharSet.Unicode)]
+        static extern uint CM_Get_Device_Interface_Alias(string pszDeviceInterface, ref Guid AliasInterfaceGuid, char[] pszAliasDeviceInterface, ref uint pulLength, uint flags);
+
+        public static string GetDeviceInterfaceAlias(string pszDeviceInterface, Guid AliasInterfaceGuid)
+        {
+            char[] szAliasDeviceInterface = { };
+            uint ulLength = 0;
+            var result = CM_Get_Device_Interface_Alias(pszDeviceInterface, ref AliasInterfaceGuid, szAliasDeviceInterface, ref ulLength, 0);
+            if (result == CR_NO_SUCH_DEVICE_INTERFACE) return null;
+            if (result != CR_BUFFER_SMALL) throw new Exception(String.Format("Unable to retrieve device alias length, result=0x{0:X8}", result));
+
+            szAliasDeviceInterface = new char[ulLength];
+            result = CM_Get_Device_Interface_Alias(pszDeviceInterface, ref AliasInterfaceGuid, szAliasDeviceInterface, ref ulLength, 0);
+            if (result != CR_SUCCESS) throw new Exception(String.Format("Unable to retrieve device alias, result=0x{0:X8}", result));
+
+            return new string(szAliasDeviceInterface);
+        }
+
+        //
+        //
+        //
 
         public static string GetDeviceInterfacePropertyFriendlyName(string pszDeviceInterface)
         {
