@@ -18,6 +18,8 @@ namespace AudioEndpointManager
         public static readonly Guid KSCATEGORY_RENDER = new Guid("65E8773E-8F56-11D0-A3B9-00A0C9223196");
 
         private const string CFGMGR32_DLL = "CfgMgr32.dll";
+        private const CharSet CHARSET = CharSet.Unicode;
+
         /// <summary>
         /// https://github.com/tpn/winsdk-10/blob/master/Include/10.0.16299.0/um/cfgmgr32.h
         /// </summary>
@@ -89,10 +91,10 @@ namespace AudioEndpointManager
 
         private const uint CM_GET_DEVICE_INTERFACE_LIST_PRESENT = 0x00000000;
 
-        [DllImport(CFGMGR32_DLL, CharSet = CharSet.Unicode)]
+        [DllImport(CFGMGR32_DLL, CharSet = CHARSET)]
         static extern uint CM_Get_Device_Interface_List_Size(out uint size, ref Guid interfaceClassGuid, string deviceID, uint flags);
 
-        [DllImport(CFGMGR32_DLL, CharSet = CharSet.Unicode)]
+        [DllImport(CFGMGR32_DLL, CharSet = CHARSET)]
         private static extern uint CM_Get_Device_Interface_List(ref Guid interfaceClassGuid, string deviceID, char[] buffer, uint bufferLength, uint flags);
 
         public static string[] GetDeviceInterfaces(Guid interfaceClassGuid)
@@ -140,7 +142,7 @@ namespace AudioEndpointManager
         private static DEVPROPKEY DEVPKEY_DeviceInterface_FriendlyName = new DEVPROPKEY(new Guid(0x026e516e, 0xb814, 0x414b, 0x83, 0xcd, 0x85, 0x6d, 0x6f, 0xef, 0x48, 0x22), 2); // DEVPROP_TYPE_STRING
         private static DEVPROPKEY DEVPKEY_DeviceInterface_Enabled = new DEVPROPKEY(new Guid(0x026e516e, 0xb814, 0x414b, 0x83, 0xcd, 0x85, 0x6d, 0x6f, 0xef, 0x48, 0x22), 3); // DEVPROP_TYPE_BOOLEAN
 
-        [DllImport(CFGMGR32_DLL, CharSet = CharSet.Unicode)]
+        [DllImport(CFGMGR32_DLL, CharSet = CHARSET)]
         static extern uint CM_Get_Device_Interface_Property(string pszDeviceInterface, ref DEVPROPKEY PropertyKey, ref uint PropertyType, byte[] PropertyBuffer, ref uint PropertyBufferSize, uint flags);
 
         private static byte[] GetDeviceInterfaceProperty(string pszDeviceInterface, DEVPROPKEY PropertyKey, uint PropertyType)
@@ -158,7 +160,7 @@ namespace AudioEndpointManager
             return PropertyBuffer;
         }
 
-        [DllImport(CFGMGR32_DLL, CharSet = CharSet.Unicode)]
+        [DllImport(CFGMGR32_DLL, CharSet = CHARSET)]
         static extern uint CM_Set_Device_Interface_Property(string pszDeviceInterface, ref DEVPROPKEY PropertyKey, uint PropertyType, byte[] PropertyBuffer, uint PropertyBufferSize, uint flags);
 
         private static void SetDeviceInterfaceProperty(string pszDeviceInterface, DEVPROPKEY PropertyKey, uint PropertyType, byte[] PropertyBuffer)
@@ -172,7 +174,7 @@ namespace AudioEndpointManager
             if (result != CR_SUCCESS) throw new Exception(String.Format("Unable to set device property, result=0x{0:X8}", result));
         }
 
-        [DllImport(CFGMGR32_DLL, CharSet = CharSet.Unicode)]
+        [DllImport(CFGMGR32_DLL, CharSet = CHARSET)]
         static extern uint CM_Get_Device_Interface_Alias(string pszDeviceInterface, ref Guid AliasInterfaceGuid, char[] pszAliasDeviceInterface, ref uint pulLength, uint flags);
 
         public static string GetDeviceInterfaceAlias(string pszDeviceInterface, Guid AliasInterfaceGuid)
