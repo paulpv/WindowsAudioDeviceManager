@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -8,15 +8,6 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Diagnostics;
-
-/// <summary>
-/// From Sang:
-/// "You will use the CM_Get_Device_Interface_List API to obtain the list of device under a given interface class.
-/// Walk that list to check for the DEVPKEY_DeviceInterface_Enabled (CM_Get_Device_Interface_Property),
-/// if enabled you can attempt to disable it (CM_Set_Device_Interface_Property).
-/// Disabling the interface in this manner will disable the “endpoint”, which will make user mode enumeration operations to skip the device."
-/// https://www.pinvoke.net/default.aspx/cfgmgr32.CM_Get_Device_Interface_List
-/// </summary>
 
 namespace AudioEndpointManager
 {
@@ -46,6 +37,17 @@ namespace AudioEndpointManager
 
         private void Form1_Load(object sender, EventArgs e)
         {
+            if (Properties.Settings.Default.IsMaximized)
+            {
+                WindowState = FormWindowState.Maximized;
+            }
+            else if (Screen.AllScreens.Any(screen => screen.WorkingArea.IntersectsWith(Properties.Settings.Default.WindowPosition)))
+            {
+                StartPosition = FormStartPosition.Manual;
+                DesktopBounds = Properties.Settings.Default.WindowPosition;
+                WindowState = FormWindowState.Normal;
+            }
+
             var listDeviceClasses = new List<DeviceClassWrapper>();
             listDeviceClasses.Add(new DeviceClassWrapper(CfgMgr32.KSCATEGORY_CAPTURE, "KSCATEGORY_CAPTURE"));
             listDeviceClasses.Add(new DeviceClassWrapper(CfgMgr32.KSCATEGORY_RENDER, "KSCATEGORY_RENDER"));
@@ -55,6 +57,13 @@ namespace AudioEndpointManager
             comboBoxDeviceClass.EndUpdate();
 
             buttonRefresh.PerformClick();
+        }
+
+        private void Form1_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            Properties.Settings.Default.IsMaximized = WindowState == FormWindowState.Maximized;
+            Properties.Settings.Default.WindowPosition = DesktopBounds;
+            Properties.Settings.Default.Save();
         }
 
         class DeviceInterfaceWrapper
@@ -79,7 +88,7 @@ namespace AudioEndpointManager
             var devicesInterfaces = CfgMgr32.GetDeviceInterfaces(CfgMgr32.KSCATEGORY_AUDIO);
 
             textBox1.Clear();
-            PrintDevices("devicesInterfaces", devicesInterfaces);
+            PrintDevices("KSCATEGORY_AUDIO", devicesInterfaces);
 
             comboBox1.BeginUpdate();
             comboBox1.Items.Clear();
@@ -88,11 +97,6 @@ namespace AudioEndpointManager
                 var name = CfgMgr32.GetDeviceInterfacePropertyFriendlyName(deviceInterface);
                 var wrapper = new DeviceInterfaceWrapper(deviceInterface, name);
                 comboBox1.Items.Add(wrapper);
-                var enabled = CfgMgr32.GetDeviceInterfacePropertyEnabled(deviceInterface);
-                if (false && name == "VoiceMeeter vaio")
-                {
-                    CfgMgr32.SetDeviceInterfacePropertyEnabled(deviceInterface, !enabled);
-                }
             }
             comboBox1.SelectedIndex = 0;
             comboBox1.EndUpdate();
@@ -121,7 +125,10 @@ namespace AudioEndpointManager
             var aliasClass = comboBoxDeviceClass.SelectedItem as DeviceClassWrapper;
             var alias = CfgMgr32.GetDeviceInterfaceAlias(deviceId, aliasClass.deviceClass);
             var enabled = CfgMgr32.GetDeviceInterfacePropertyEnabled(alias);
-            CfgMgr32.SetDeviceInterfacePropertyEnabled(alias, !enabled);
+            if (enabled.HasValue)
+            {
+                CfgMgr32.SetDeviceInterfacePropertyEnabled(alias, !enabled.Value);
+            }
         }
     }
 }

@@ -1,10 +1,13 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 
+/// <summary>
+/// https://docs.microsoft.com/en-us/windows/desktop/api/cfgmgr32/
+/// </summary>
 namespace AudioEndpointManager
 {
     class CfgMgr32
@@ -99,7 +102,7 @@ namespace AudioEndpointManager
 
         public static string[] GetDeviceInterfaces(Guid interfaceClassGuid)
         {
-            uint flags = CM_GET_DEVICE_INTERFACE_LIST_PRESENT;
+            var flags = CM_GET_DEVICE_INTERFACE_LIST_PRESENT;
 
             uint size;
             var result = CM_Get_Device_Interface_List_Size(out size, ref interfaceClassGuid, null, flags);
@@ -115,8 +118,9 @@ namespace AudioEndpointManager
         /// <summary>
         /// https://github.com/tpn/winsdk-10/blob/master/Include/10.0.16299.0/shared/devpropdef.h
         /// </summary>
-        private const uint DEVPROP_TYPE_BOOLEAN = 0x00000011;  // // 8-bit boolean (DEVPROP_BOOLEAN)
-        private const uint DEVPROP_TYPE_STRING = 0x00000012;  // null-terminated string
+        private const uint DEVPROP_TYPE_GUID                       = 0x0000000D;  // 128-bit unique identifier (GUID)
+        private const uint DEVPROP_TYPE_BOOLEAN                    = 0x00000011;  // 8-bit boolean (DEVPROP_BOOLEAN)
+        private const uint DEVPROP_TYPE_STRING                     = 0x00000012;  // null-terminated string
 
         private const byte DEVPROP_TRUE = unchecked((byte)-1);
         private const byte DEVPROP_FALSE = 0;
@@ -147,7 +151,7 @@ namespace AudioEndpointManager
 
         private static byte[] GetDeviceInterfaceProperty(string pszDeviceInterface, DEVPROPKEY PropertyKey, uint PropertyType)
         {
-            byte[] PropertyBuffer = null;
+            byte[] PropertyBuffer = { };
             uint PropertyBufferSize = 0;
             var result = CM_Get_Device_Interface_Property(pszDeviceInterface, ref PropertyKey, ref PropertyType, PropertyBuffer, ref PropertyBufferSize, 0);
             if (result == CR_NO_SUCH_VALUE) return null;
@@ -199,14 +203,16 @@ namespace AudioEndpointManager
         public static string GetDeviceInterfacePropertyFriendlyName(string pszDeviceInterface)
         {
             var PropertyBuffer = GetDeviceInterfaceProperty(pszDeviceInterface, DEVPKEY_DeviceInterface_FriendlyName, DEVPROP_TYPE_STRING);
-            var FriendlyName = PropertyBuffer == null || PropertyBuffer.Length < 2 ? null : Encoding.Unicode.GetString(PropertyBuffer, 0, PropertyBuffer.Length - 2);
+            if (PropertyBuffer == null || PropertyBuffer.Length < 2) return null;
+            var FriendlyName = Encoding.Unicode.GetString(PropertyBuffer, 0, PropertyBuffer.Length - 2);
             return FriendlyName;
         }
 
-        public static bool GetDeviceInterfacePropertyEnabled(string pszDeviceInterface)
+        public static bool? GetDeviceInterfacePropertyEnabled(string pszDeviceInterface)
         {
             var PropertyBuffer = GetDeviceInterfaceProperty(pszDeviceInterface, DEVPKEY_DeviceInterface_Enabled, DEVPROP_TYPE_BOOLEAN);
-            var Enabled = PropertyBuffer != null && PropertyBuffer.Length == 1 && PropertyBuffer[0] == DEVPROP_TRUE;
+            if (PropertyBuffer == null || PropertyBuffer.Length != 1) return null;
+            var Enabled = PropertyBuffer[0] == DEVPROP_TRUE;
             return Enabled;
         }
 
